@@ -1,0 +1,55 @@
+/* =========================
+   Typography – 我与狗
+   ========================= */
+
+/* 全局基础字体 */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+               "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", sans-serif;
+  color: #2c2c2c;
+  line-height: 1.75;
+  background-color: #fafafa;
+}
+
+/* 页面主标题 h1 */
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 32px 0 24px;
+  letter-spacing: 0.5px;
+}
+
+/* 章节标题 h2 */
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 36px 0 16px;
+  padding-left: 12px;
+  border-left: 4px solid #4caf50; /* 温和的“狗主题”绿色 */
+}
+
+/* 正文段落 */
+p {
+  font-size: 16px;
+  margin: 0 0 16px;
+  color: #333;
+}
+
+/* 列表（如果你后面会用） */
+ul {
+  padding-left: 20px;
+  margin-bottom: 16px;
+}
+
+li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+/* 页面内容区宽度（非常重要） */
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}

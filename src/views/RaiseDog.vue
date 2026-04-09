@@ -1,5 +1,8 @@
 <template>
   <div class="raise-page">
+    <p class="tip">
+      🐶 每一次陪伴，都是在学习如何不放弃一只狗
+    </p>
     <p v-if="returnTip" class="return-tip">
       {{ returnTip }}
     </p>
@@ -607,5 +610,12 @@ export default {
   font-size: 13px;
   color: #0ea5e9;
   margin-bottom: 6px;
+}
+
+.tip {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 </style>

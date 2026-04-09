@@ -2,24 +2,27 @@
   <div class="home">
     <!-- 弹幕 -->
     <BulletScreen />
+    <p class="main-text">
+      每一只被遗弃的狗，
+      都曾经相信过人类。
+    </p>
 
-    <!-- 三个入口模块 -->
-    <div class="entry-grid">
-      <div class="entry-card" @click="goEntry(1)">
-        <img src="https://via.placeholder.com/300x180?text=Dog+Test" />
-        <h3>🐾 我适合养狗吗？</h3>
-      </div>
 
-      <div class="entry-card" @click="goEntry(2)">
-        <img src="https://via.placeholder.com/300x180?text=Choose+Dog" />
-        <h3>🐶 这么多狗，我该选哪一种？</h3>
-      </div>
-
-      <div class="entry-card" @click="goEntry(3)">
-        <img src="https://via.placeholder.com/300x180?text=Dog+Guide" />
-        <h3>📘 养狗难不难？要注意什么？</h3>
-      </div>
+    <div class="card" @click="goTest">
+      <img :src="require('@/assets/home/decide.png')" />
+      <p>我适合养狗吗？（⬆这里有答案）</p>
     </div>
+
+    <div class="card" @click="goChoose">
+      <img :src="require('@/assets/home/choose.png')" />
+      <p>这么多狗，我该选哪一种？（⬆在这里选最适合养的狗）</p>
+    </div>
+
+    <div class="card" @click="goGuide">
+      <img :src="require('@/assets/home/raise.png')" />
+      <p>养狗难不难？要注意什么？（⬆点击查看注意事项）</p>
+    </div>
+
   </div>
 </template>
 
@@ -58,14 +61,14 @@ export default {
   },
 
   methods: {
-    goEntry(type) {
-      if (type === 1) {
-        this.$router.push('/dog-test')
-      } else if (type === 2) {
-        this.$router.push('/choose-dog')
-      } else if (type === 3) {
-        this.$router.push('/dog-guide')
-      }
+    goTest() {
+      this.$router.push('/dog-test')
+    },
+    goChoose() {
+      this.$router.push('/choose-dog')
+    },
+    goGuide() {
+      this.$router.push('/rules')
     }
   }
 }
@@ -80,35 +83,41 @@ export default {
   font-weight: bold;
   color: #42b983;
 }
-.entry-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  padding: 24px;
+
+.home {
+  padding: 15px;
 }
 
-.entry-card {
+.main-text {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
+  margin-bottom: 15px;
   overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   transition: transform 0.2s;
 }
 
-.entry-card:hover {
-  transform: translateY(-4px);
+.card:active {
+  transform: scale(0.97); /* 👈 点击有反馈（很重要） */
 }
 
-.entry-card img {
+.card img {
   width: 100%;
-  height: 160px;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
 }
 
-.entry-card h3 {
-  margin: 12px;
-  font-size: 16px;
+.card p {
+  padding: 12px;
+  font-size: 15px;
 }
 
 </style>

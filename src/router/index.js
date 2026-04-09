@@ -8,7 +8,7 @@ import Rules from '@/views/Rules.vue'
 import MyDog from '@/views/MyDog.vue'
 import DogDetail from '@/views/DogDetail.vue'
 
-
+localStorage.removeItem('hasSeenSplash')
 
 Vue.use(Router)
 
@@ -16,12 +16,18 @@ export default new Router({
   mode: 'history',
   routes: [
     {
-      path: "/",
+      path: '/',
+      redirect: () => {
+        const hasSeen = localStorage.getItem('hasSeenSplash')
+        return hasSeen ? '/home' : '/splash'
+      }
+    },
+    {
+      path: '/splash',
       component: Splash
     },
     {
       path: '/home',
-      name: 'home',
       component: Home
     },
     {

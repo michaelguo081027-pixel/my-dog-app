@@ -2,6 +2,12 @@
   <div class="home">
     <!-- 弹幕 -->
     <BulletScreen />
+    <p class="status">
+      🐶 已陪伴 {{ days }} 天 ｜ 当前状态：{{ mood }}
+    </p>
+    <p class="streak">
+      🔥 已连续照顾 {{ streak }} 天
+    </p>
     <p class="main-text">
       每一只被遗弃的狗，
       都曾经相信过人类。
@@ -22,7 +28,6 @@
       <img :src="require('@/assets/home/raise.png')" />
       <p>养狗难不难？要注意什么？（⬆点击查看注意事项）</p>
     </div>
-
   </div>
 </template>
 
@@ -40,6 +45,9 @@ export default {
 
   data() {
     return {
+      days: 0,
+      todayFed: false,
+      streak: 0,
       dog: null,
       daysTogether: null
     }
@@ -69,6 +77,35 @@ export default {
     },
     goGuide() {
       this.$router.push('/rules')
+    }
+  },
+
+  mounted() {
+    // 📅 计算陪伴天数
+    let start = localStorage.getItem('startDate')
+
+    if (!start) {
+      start = new Date()
+      localStorage.setItem('startDate', start)
+    }
+
+    const days = Math.floor(
+      (Date.now() - new Date(start)) / (1000 * 60 * 60 * 24)
+    )
+
+    this.days = days + 1
+
+    // 🐶 判断今天是否完成照顾
+    const today = new Date().toDateString()
+    const last = localStorage.getItem('lastFedDate')
+
+    this.todayFed = (today === last)
+    this.streak = parseInt(localStorage.getItem('streak')) || 0
+  },
+
+  computed: {
+    mood() {
+      return this.todayFed ? '开心 😊' : '孤单 😢'
     }
   }
 }
@@ -120,4 +157,18 @@ export default {
   font-size: 15px;
 }
 
+.status {
+  text-align: center;
+  font-size: 17px;
+  margin: 10px 0 15px;
+  color: #ff6b6b;
+  font-weight: 500;
+}
+
+.streak {
+  text-align: center;
+  font-size: 15px;
+  color: #ffa502;
+  margin-bottom: 10px;
+}
 </style>

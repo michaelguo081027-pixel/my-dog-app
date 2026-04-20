@@ -1,5 +1,6 @@
 <template>
   <div class="raise-page">
+    <p class="dog-mood">🐶 当前状态：{{ dogMood }}</p>
     <p class="tip">
       🐶 每一次陪伴，都是在学习如何不放弃一只狗
     </p>
@@ -117,10 +118,11 @@ export default {
       dog: null,
       daysTogether: 0,
       careStatus: {
-        feed: false,
-        walk: false,
-        play: false
-      },
+          feed: false,
+          walk: false,
+          play: false
+        },
+        dogMood: '😢 很难过',
       streakDays: 0,
       lastDoneDate: '',
       returnTip: ''
@@ -375,10 +377,51 @@ export default {
   },
 
   methods: {
+    updateDogMood() {
+      const { feed, walk, play } = this.careStatus
+
+      const count = [feed, walk, play].filter(v => v).length
+
+      if (count === 3) {
+        this.dogMood = '😄 非常开心'
+      } else if (count === 2) {
+        this.dogMood = '🙂 还不错'
+      } else if (count === 1) {
+        this.dogMood = '😐 有点无聊'
+      } else {
+        this.dogMood = '😢 很难过'
+      }
+    },
     toggleCare(type) {
       this.careStatus[type] = !this.careStatus[type]
+      // 👉 判断是否全部完成
+      const allDone = 
+        this.careStatus.feed &&
+        this.careStatus.walk &&
+        this.careStatus.play
+
+      if (allDone) {
+        const today = new Date().toDateString()
+        const yesterday = new Date(Date.now() - 86400000).toDateString()
+
+        const lastDate = localStorage.getItem('lastFedDate')
+        let streak = parseInt(localStorage.getItem('streak')) || 0
+
+        if (lastDate === yesterday) {
+          streak += 1
+        } else if (lastDate === today) {
+          // 今天已经算过，不重复加
+        } else {
+          streak = 1
+        }
+
+        localStorage.setItem('streak', streak)
+        localStorage.setItem('lastFedDate', today)
+      }
+
       this.saveCareStatus()
       this.checkStreak()
+      this.updateDogMood()
     },
 
     checkStreak() {
@@ -617,5 +660,12 @@ export default {
   color: #666;
   font-size: 14px;
   margin-bottom: 10px;
+}
+
+.dog-mood {
+  text-align: center;
+  font-size: 16px;
+  margin: 10px 0;
+  color: #333;
 }
 </style>

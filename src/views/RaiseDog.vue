@@ -1,5 +1,6 @@
 <template>
   <div class="raise-page">
+    <img :src="dogImage" class="dog-img" />
     <p class="dog-mood">🐶 当前状态：{{ dogMood }}</p>
     <p class="tip">
       🐶 每一次陪伴，都是在学习如何不放弃一只狗
@@ -16,6 +17,9 @@
     <p class="daily-event">
       {{ dailyEvent }}
     </p>
+    <div v-if="showSuccess" class="success">
+      🎉 今天狗狗超级开心！
+    </div>
     <!-- 🐶 我的狗 -->
     <div class="dog-header" v-if="dog">
       <img :src="dog.img" class="dog-avatar" />
@@ -125,7 +129,8 @@ export default {
         dogMood: '😢 很难过',
       streakDays: 0,
       lastDoneDate: '',
-      returnTip: ''
+      returnTip: '',
+      showSuccess: false
     }
   },
   computed: {
@@ -325,7 +330,17 @@ export default {
       }
 
       return records
+    },
+    dogImage() {
+      if (this.dogMood.includes('非常开心')) {
+        return require('@/assets/raise/happy.png')
+      } else if (this.dogMood.includes('还不错')) {
+        return require('@/assets/raise/normal.png')
+      } else {
+        return require('@/assets/raise/sad.png')
+      }
     }
+
   },
   created() {
     const savedDog = localStorage.getItem('myDog')
@@ -417,6 +432,13 @@ export default {
 
         localStorage.setItem('streak', streak)
         localStorage.setItem('lastFedDate', today)
+
+        // 🔥 新增：提示
+        this.showSuccess = true
+
+        setTimeout(() => {
+          this.showSuccess = false
+        }, 2000)
       }
 
       this.saveCareStatus()
@@ -667,5 +689,31 @@ export default {
   font-size: 16px;
   margin: 10px 0;
   color: #333;
+}
+
+.success {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 12px 20px;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  font-size: 16px;
+  animation: fade 2s;
+}
+
+@keyframes fade {
+  0% { opacity: 0; transform: translate(-50%, -10px); }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+.dog-img {
+  width: 120px;
+  display: block;
+  margin: 10px auto;
 }
 </style>

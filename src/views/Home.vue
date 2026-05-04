@@ -28,6 +28,16 @@
       <img :src="require('@/assets/home/raise.png')" />
       <p>养狗难不难？要注意什么？（⬆点击查看注意事项）</p>
     </div>
+    <button @click="showShare = true" class="share-btn">
+      📸 生成我的养狗成绩
+    </button>
+    <div v-if="showShare" class="share-card">
+      <p>🐶 我已经陪伴狗狗 {{ days }} 天</p>
+      <p>🔥 连续照顾 {{ streak }} 天</p>
+      <p>今天它{{ mood }}</p>
+
+      <button @click="showShare = false">关闭</button>
+    </div>
   </div>
 </template>
 
@@ -49,7 +59,8 @@ export default {
       todayFed: false,
       streak: 0,
       dog: null,
-      daysTogether: null
+      daysTogether: null,
+      showShare: false
     }
   },
 
@@ -170,5 +181,55 @@ export default {
   font-size: 15px;
   color: #ffa502;
   margin-bottom: 10px;
+}
+
+.share-btn {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.3);
+
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px); /* 🔥 关键 */
+  -webkit-backdrop-filter: blur(10px);
+
+  color: #ff6b6b;
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+.share-btn:active {
+  transform: translateX(-50%) scale(0.95);
+  box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+}
+
+@keyframes float {
+  0% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -3px); }
+  100% { transform: translate(-50%, 0); }
+}
+
+.share-btn {
+  animation: float 2.5s ease-in-out infinite;
+}
+
+.share-card {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  text-align: center;
+  z-index: 999;
 }
 </style>

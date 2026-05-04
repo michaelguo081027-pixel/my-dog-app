@@ -2,7 +2,9 @@
   <div id="app">
     <!-- 只有非启动页才显示 NavBar -->
     <NavBar v-if="$route.path !== '/'" />
-    <router-view />
+    <transition name="fade-slide" mode="out-in">
+      <router-view />
+    </transition>
     <div class="tab-bar">
       <div
         @click="$router.push('/raise-dog')"
@@ -71,5 +73,23 @@ export default {
 .tab.active {
   color: #16a34a;
   font-weight: 600;
+}
+
+.fade-slide-enter-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-slide-leave-active {
+  transition: all 0.2s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
 }
 </style>

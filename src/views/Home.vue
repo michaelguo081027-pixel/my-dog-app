@@ -2,11 +2,18 @@
   <div class="home">
     <!-- 弹幕 -->
     <BulletScreen />
+    
+    
+    <button @click="toggleLang" class="lang-btn">
+      🌐 {{ lang === 'zh' ? 'EN' : '中' }}
+    </button>
+
     <p class="status">
-      🐶 已陪伴 {{ days }} 天 ｜ 当前状态：{{ mood }}
+      {{ langData[lang].status }} {{ days }} {{ langData[lang].days }}
+      ｜ {{ langData[lang].mood }}：{{ moodText }}
     </p>
     <p class="streak">
-      🔥 已连续照顾 {{ streak }} 天
+      🔥 {{ langData[lang].streak }} {{ streak }} {{ langData[lang].days }}
     </p>
     <p class="main-text">
       每一只被遗弃的狗，
@@ -28,8 +35,8 @@
       <img :src="require('@/assets/home/raise.png')" />
       <p>养狗难不难？要注意什么？（⬆点击查看注意事项）</p>
     </div>
-    <button @click="showShare = true" class="share-btn">
-      📸 生成我的养狗成绩
+    <button class="share-btn">
+      {{ langData[lang].share }}
     </button>
     <div v-if="showShare" class="share-card">
       <p>🐶 我已经陪伴狗狗 {{ days }} 天</p>
@@ -37,6 +44,7 @@
       <p>今天它{{ mood }}</p>
 
       <button @click="showShare = false">关闭</button>
+
     </div>
   </div>
 </template>
@@ -44,6 +52,7 @@
 
 
 <script>
+import { langData } from '@/i18n'
 import BulletScreen from '@/components/BulletScreen.vue'
 
 export default {
@@ -60,7 +69,9 @@ export default {
       streak: 0,
       dog: null,
       daysTogether: null,
-      showShare: false
+      showShare: false,
+      lang: localStorage.getItem('lang') || 'zh',
+      langData,
     }
   },
 
@@ -88,6 +99,15 @@ export default {
     },
     goGuide() {
       this.$router.push('/rules')
+    },
+    getDaysDiff(dateStr) {
+      const last = new Date(dateStr)
+      const now = new Date()
+      return Math.floor((now - last) / (1000 * 60 * 60 * 24))
+    },
+    toggleLang() {
+      this.lang = this.lang === 'zh' ? 'en' : 'zh'
+      localStorage.setItem('lang', this.lang)
     }
   },
 
@@ -114,9 +134,16 @@ export default {
     this.streak = parseInt(localStorage.getItem('streak')) || 0
   },
 
-  computed: {
-    mood() {
-      return this.todayFed ? '开心 😊' : '孤单 😢'
+  computed: { 
+    moodText() {
+      const last = localStorage.getItem('lastFedDate')
+      if (!last) return this.langData[this.lang].lonely
+
+      const diff = this.getDaysDiff(last)
+
+      if (diff === 0) return this.langData[this.lang].happy
+      if (diff === 1) return this.langData[this.lang].boring
+      return this.langData[this.lang].lonely
     }
   }
 }
@@ -231,5 +258,15 @@ export default {
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   text-align: center;
   z-index: 999;
+}
+
+.lang-btn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  border: none;
+  background: rgba(255,255,255,0.6);
+  border-radius: 12px;
+  padding: 4px 10px;
 }
 </style>

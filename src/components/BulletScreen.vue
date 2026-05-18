@@ -1,21 +1,32 @@
 <template>
   <div class="bullet-wrapper">
     <div class="bullet bullet1">
-      我很喜欢狗狗，但我真的适合养狗吗？
+      {{ copy.home.bullets[0] }}
     </div>
     <div class="bullet bullet2">
-      狗狗那么多，我应该养哪一种？
+      {{ copy.home.bullets[1] }}
     </div>
     <div class="bullet bullet3">
-      狗狗好养吗？养好一只狗需要注意什么？
+      {{ copy.home.bullets[2] }}
     </div>
   </div>
 </template>
 
 <script>
+import { i18nState, langData } from '@/i18n'
+
 export default {
-  name: "BulletScreen"
-};
+  name: "BulletScreen",
+
+  computed: {
+    lang() {
+      return i18nState.lang
+    },
+    copy() {
+      return langData[this.lang]
+    }
+  }
+}
 </script>
 
 <style scoped>

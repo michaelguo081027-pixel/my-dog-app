@@ -2,48 +2,45 @@
   <div class="home">
     <!-- 弹幕 -->
     <BulletScreen />
-    
-    
-    <button @click="toggleLang" class="lang-btn">
-      🌐 {{ lang === 'zh' ? 'EN' : '中' }}
-    </button>
+    <LanguageToggle />
 
     <p class="status">
-      {{ langData[lang].status }} {{ days }} {{ langData[lang].days }}
-      ｜ {{ langData[lang].mood }}：{{ moodText }}
+      {{ copy.home.status }} {{ days }} {{ copy.common.days }}
+      ｜ {{ copy.common.mood }}：{{ moodText }}
     </p>
     <p class="streak">
-      🔥 {{ langData[lang].streak }} {{ streak }} {{ langData[lang].days }}
+      🔥 {{ copy.home.streak }} {{ streak }} {{ copy.common.days }}
     </p>
     <p class="main-text">
-      每一只被遗弃的狗，
-      都曾经相信过人类。
+      <span>{{ copy.home.mainText[0] }}</span>
+      <br>
+      <span>{{ copy.home.mainText[1] }}</span>
     </p>
 
 
     <div class="card" @click="goTest">
       <img :src="require('@/assets/home/decide.png')" />
-      <p>我适合养狗吗？（⬆这里有答案）</p>
+      <p>{{ copy.home.cards[0] }}</p>
     </div>
 
     <div class="card" @click="goChoose">
       <img :src="require('@/assets/home/choose.png')" />
-      <p>这么多狗，我该选哪一种？（⬆在这里选最适合养的狗）</p>
+      <p>{{ copy.home.cards[1] }}</p>
     </div>
 
     <div class="card" @click="goGuide">
       <img :src="require('@/assets/home/raise.png')" />
-      <p>养狗难不难？要注意什么？（⬆点击查看注意事项）</p>
+      <p>{{ copy.home.cards[2] }}</p>
     </div>
-    <button class="share-btn">
-      {{ langData[lang].share }}
+    <button class="share-btn" @click="showShare = true">
+      {{ copy.home.share }}
     </button>
     <div v-if="showShare" class="share-card">
-      <p>🐶 我已经陪伴狗狗 {{ days }} 天</p>
-      <p>🔥 连续照顾 {{ streak }} 天</p>
-      <p>今天它{{ mood }}</p>
+      <p>{{ format(copy.home.shareCard.days, { days }) }}</p>
+      <p>{{ format(copy.home.shareCard.streak, { streak }) }}</p>
+      <p>{{ format(copy.home.shareCard.mood, { mood: moodText }) }}</p>
 
-      <button @click="showShare = false">关闭</button>
+      <button @click="showShare = false">{{ copy.home.shareCard.close }}</button>
 
     </div>
   </div>
@@ -52,14 +49,16 @@
 
 
 <script>
-import { langData } from '@/i18n'
+import { formatMessage, i18nState, langData } from '@/i18n'
 import BulletScreen from '@/components/BulletScreen.vue'
+import LanguageToggle from '@/components/LanguageToggle.vue'
 
 export default {
   name: 'HomePage',
 
   components: {
-    BulletScreen
+    BulletScreen,
+    LanguageToggle
   },
 
   data() {
@@ -69,9 +68,7 @@ export default {
       streak: 0,
       dog: null,
       daysTogether: null,
-      showShare: false,
-      lang: localStorage.getItem('lang') || 'zh',
-      langData,
+      showShare: false
     }
   },
 
@@ -105,9 +102,8 @@ export default {
       const now = new Date()
       return Math.floor((now - last) / (1000 * 60 * 60 * 24))
     },
-    toggleLang() {
-      this.lang = this.lang === 'zh' ? 'en' : 'zh'
-      localStorage.setItem('lang', this.lang)
+    format(template, values) {
+      return formatMessage(template, values)
     }
   },
 
@@ -135,15 +131,21 @@ export default {
   },
 
   computed: { 
+    lang() {
+      return i18nState.lang
+    },
+    copy() {
+      return langData[this.lang]
+    },
     moodText() {
       const last = localStorage.getItem('lastFedDate')
-      if (!last) return this.langData[this.lang].lonely
+      if (!last) return this.copy.common.moods.sad
 
       const diff = this.getDaysDiff(last)
 
-      if (diff === 0) return this.langData[this.lang].happy
-      if (diff === 1) return this.langData[this.lang].boring
-      return this.langData[this.lang].lonely
+      if (diff === 0) return this.copy.common.moods.happy
+      if (diff === 1) return this.copy.common.moods.bored
+      return this.copy.common.moods.sad
     }
   }
 }
@@ -260,13 +262,4 @@ export default {
   z-index: 999;
 }
 
-.lang-btn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  border: none;
-  background: rgba(255,255,255,0.6);
-  border-radius: 12px;
-  padding: 4px 10px;
-}
 </style>

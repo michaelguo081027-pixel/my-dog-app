@@ -1,9 +1,10 @@
 <template>
   <div class="raise-page">
+    <LanguageToggle />
     <img :src="dogImage" class="dog-img" />
-    <p class="dog-mood">🐶 当前状态：{{ dogMood }}</p>
+    <p class="dog-mood">{{ copy.raiseDog.moodLabel }}{{ dogMoodText }}</p>
     <p class="tip">
-      🐶 每一次陪伴，都是在学习如何不放弃一只狗
+      {{ copy.raiseDog.tip }}
     </p>
     <p v-if="returnTip" class="return-tip">
       {{ returnTip }}
@@ -18,43 +19,45 @@
       {{ dailyEvent }}
     </p>
     <div v-if="showSuccess" class="success">
-      🎉 今天狗狗超级开心！
+      {{ copy.raiseDog.success }}
     </div>
     <!-- 🐶 我的狗 -->
     <div class="dog-header" v-if="dog">
       <img :src="dog.img" class="dog-avatar" />
-      <h2>{{ dog.name }}</h2>
-      <p class="days">我们已经在一起第 {{ daysTogether }} 天</p>
+      <h2>{{ dogName }}</h2>
+      <p class="days">{{ format(copy.raiseDog.daysTogether, { days: daysTogether }) }}</p>
     </div>
 
     <!-- 🔔 今日养狗提醒 -->
     <div class="card">
-      <h3>🐾 今日养狗提醒</h3>
+      <h3>{{ copy.raiseDog.reminderTitle }}</h3>
       <ul>
-        <li>🍖 今天记得按时喂食</li>
-        <li>🚶 至少一次户外活动</li>
-        <li>🧼 观察是否需要清洁</li>
-        <li>🩺 留意精神和食欲状态</li>
+        <li
+          v-for="reminder in copy.raiseDog.reminders"
+          :key="reminder"
+        >
+          {{ reminder }}
+        </li>
       </ul>
     </div>
 
     <!-- ✅ 今日打卡 -->
     <div class="card">
-      <h3>✅ 今日打卡</h3>
+      <h3>{{ copy.raiseDog.checkinTitle }}</h3>
 
       <div class="check-item" @click="toggleCare('feed')">
         <span>{{ careStatus.feed ? '☑' : '☐' }}</span>
-        <span>🍖 今天喂食了</span>
+        <span>{{ copy.raiseDog.checkItems.feed }}</span>
       </div>
 
       <div class="check-item" @click="toggleCare('walk')">
         <span>{{ careStatus.walk ? '☑' : '☐' }}</span>
-        <span>🚶 今天运动了</span>
+        <span>{{ copy.raiseDog.checkItems.walk }}</span>
       </div>
 
       <div class="check-item" @click="toggleCare('play')">
         <span>{{ careStatus.play ? '☑' : '☐' }}</span>
-        <span>🎾 今天陪伴互动</span>
+        <span>{{ copy.raiseDog.checkItems.play }}</span>
       </div>
     </div>
 
@@ -63,12 +66,12 @@
       v-if="isAllDone"
       class="done-text"
     >
-      🐶 你今天把狗照顾得很好！
+      {{ copy.raiseDog.doneText }}
     </p>
 
     <!-- 🏆 连续照顾天数 -->
     <p v-if="streakDays > 0" class="streak-text">
-      🏆 你已经连续照顾狗狗 {{ streakDays }} 天了
+      {{ format(copy.raiseDog.streakText, { days: streakDays }) }}
     </p>
 
     <!-- 🏆 里程碑专属反馈（优先） -->
@@ -83,13 +86,13 @@
 
     <!-- 💡 养狗小建议 -->
     <div class="card">
-      <h3>📘 养狗小建议</h3>
+      <h3>{{ copy.raiseDog.adviceTitle }}</h3>
       <p>{{ careTip }}</p>
     </div>
 
     <!-- 🐾 成长记录 -->
     <div class="growth-box">
-      <h3 class="growth-title">🐾 成长记录</h3>
+      <h3 class="growth-title">{{ copy.raiseDog.growthTitle }}</h3>
 
       <ul class="growth-list">
         <li
@@ -98,7 +101,7 @@
           class="growth-item"
         >
           <div class="record-main">
-            <span class="day">第 {{ item.day }} 天</span>
+            <span class="day">{{ format(copy.raiseDog.dayLabel, { day: item.day }) }}</span>
             <span class="text">{{ item.text }}</span>
           </div>
 
@@ -115,36 +118,58 @@
 </template>
 
 <script>
+import { formatMessage, i18nState, langData } from '@/i18n'
+import LanguageToggle from '@/components/LanguageToggle.vue'
+
 export default {
   name: 'RaiseDog',
+
+  components: {
+    LanguageToggle
+  },
+
   data() {
     return {
       dog: null,
+      startDate: '',
       daysTogether: 0,
       careStatus: {
           feed: false,
           walk: false,
           play: false
         },
-        dogMood: '😢 很难过',
+        dogMood: 'sad',
       streakDays: 0,
       lastDoneDate: '',
-      returnTip: '',
+      returnTipKey: '',
       showSuccess: false
     }
   },
   computed: {
+    lang() {
+      return i18nState.lang
+    },
+    copy() {
+      return langData[this.lang]
+    },
+    dogMoodText() {
+      return this.copy.common.moods[this.dogMood]
+    },
+    dogName() {
+      if (!this.dog) return ''
+      return this.copy.chooseDog.dogs[this.dog.id]?.name || this.dog.name
+    },
     careTip() {
       if (!this.dog) return ''
 
       if (this.dog.level === 'low') {
-        return '这类狗狗对新手非常友好，保持规律作息就好。'
+        return this.copy.raiseDog.careTips.low
       }
       if (this.dog.level === 'mid') {
-        return '建议每天安排固定的陪伴和互动时间。'
+        return this.copy.raiseDog.careTips.mid
       }
       if (this.dog.level === 'high') {
-        return '精力充沛，记得多运动、多互动，避免无聊。'
+        return this.copy.raiseDog.careTips.high
       }
       return ''
     },
@@ -161,28 +186,28 @@ export default {
       if (this.streakDays === 0) return ''
 
       if (this.streakDays === 1) {
-        return '很好！你已经迈出了照顾狗狗的第一步 🐾'
+        return this.copy.raiseDog.streakTips.day1
       }
       if (this.streakDays === 3) {
-        return '你已经开始建立稳定的照顾习惯了 😊'
+        return this.copy.raiseDog.streakTips.day3
       }
       if (this.streakDays === 7) {
-        return '太棒了！你已经坚持整整一周 🎉'
+        return this.copy.raiseDog.streakTips.day7
       }
       if (this.streakDays === 30) {
-        return '你已经是真正的养狗达人了 🏆'
+        return this.copy.raiseDog.streakTips.day30
       }
 
       if (this.streakDays > 1 && this.streakDays < 7) {
-        return `你已经连续照顾狗狗 ${this.streakDays} 天了，加油！`
+        return this.format(this.copy.raiseDog.streakTips.under7, { days: this.streakDays })
       }
 
       if (this.streakDays > 7 && this.streakDays < 30) {
-        return `坚持了 ${this.streakDays} 天，你真的很用心 🐶`
+        return this.format(this.copy.raiseDog.streakTips.under30, { days: this.streakDays })
       }
 
       if (this.streakDays > 30) {
-        return '狗狗已经把你当成最重要的人了 💛'
+        return this.copy.raiseDog.streakTips.over30
       }
 
       return ''
@@ -193,69 +218,41 @@ export default {
 
       // 第一次来（还没开始）
       if (!this.streakDays) {
-        return this.getRandom([
-          '你今天会来看我吗？',
-          '我一直在这里等你…',
-          '你会不会忘了我呀？'
-        ])
+        return this.getRandom(this.copy.raiseDog.welcome.first)
       }
 
       // ❗还没完成今天任务
       if (!this.isAllDone) {
         if (hour < 12) {
-          return this.getRandom([
-            '早上好，我在等你带我开始一天 🐾',
-            '你醒了吗？我已经在等你了',
-            '今天可以早点陪我吗？'
-          ])
+          return this.getRandom(this.copy.raiseDog.welcome.morningWaiting)
         }
 
         if (hour < 18) {
-          return this.getRandom([
-            '下午有点无聊…要不要陪我一下？',
-            '你今天好像还没怎么陪我',
-            '我一直在等你回来…'
-          ])
+          return this.getRandom(this.copy.raiseDog.welcome.afternoonWaiting)
         }
 
-        return this.getRandom([
-          '已经晚上了，我还在等你…',
-          '今天还没结束，你会来吗？',
-          '我有点想你了…'
-        ])
+        return this.getRandom(this.copy.raiseDog.welcome.eveningWaiting)
       }
 
       // ✅ 已完成今天任务
       if (hour < 12) {
-        return this.getRandom([
-          '今天一早就见到你，真好 ☀️',
-          '有你陪我开始一天，好安心',
-          '今天一定会是开心的一天！'
-        ])
+        return this.getRandom(this.copy.raiseDog.welcome.morningDone)
       }
 
       if (hour < 18) {
-        return this.getRandom([
-          '下午和你在一起，很安心 😊',
-          '有你陪着，我一点都不无聊',
-          '今天的时光好舒服啊'
-        ])
+        return this.getRandom(this.copy.raiseDog.welcome.afternoonDone)
       }
 
-      return this.getRandom([
-        '今天能陪你到晚上，好幸福 🌙',
-        '和你在一起的一天结束了，好满足',
-        '明天也要见到你，好吗？'
-      ])
+      return this.getRandom(this.copy.raiseDog.welcome.eveningDone)
     },
 
     milestoneTip() {
       if (this.streakDays === 7) {
-        return '🎉 连续 7 天！你已经建立起照顾狗狗的稳定习惯了'
+        return this.copy.raiseDog.milestones.day7
       }
 
       if (this.streakDays === 30) {
-        return '🏆 连续 30 天！你已经是真正意义上的养狗人了'
+        return this.copy.raiseDog.milestones.day30
       }
 
       return ''
@@ -271,32 +268,27 @@ export default {
         (new Date(today) - new Date(last)) / (1000 * 60 * 60 * 24)
 
       if (diff >= 1) {
-        return '🐶 昨天你没来，我等了你很久…'
+        return this.copy.raiseDog.missedTip
       }
 
       return ''
     },
+    returnTip() {
+      return this.returnTipKey ? this.copy.raiseDog.returnTips[this.returnTipKey] : ''
+    },
 
     dailyEvent() {
       const today = new Date().toISOString().slice(0, 10)
-      const key = 'event_' + today
+      const key = 'eventIndex_' + today
 
-      let event = localStorage.getItem(key)
+      let eventIndex = localStorage.getItem(key)
 
-      if (!event) {
-        const events = [
-          '🐶 今天它特别粘你，一直跟着你',
-          '🐶 它今天看起来心情很好，一直摇尾巴',
-          '🐶 它刚刚偷偷看了你好久',
-          '🐶 今天它有点安静，好像在想事情',
-          '🐶 它刚刚对你歪头了，好可爱'
-        ]
-
-        event = events[Math.floor(Math.random() * events.length)]
-        localStorage.setItem(key, event)
+      if (!eventIndex) {
+        eventIndex = Math.floor(Math.random() * this.copy.raiseDog.dailyEvents.length)
+        localStorage.setItem(key, eventIndex)
       }
 
-      return event
+      return this.copy.raiseDog.dailyEvents[Number(eventIndex)]
     },
 
     growthRecords() {
@@ -305,8 +297,8 @@ export default {
       if (this.startDate) {
         records.push({
           day: 1,
-          text: '🐾 今天，你决定开始养狗',
-          dogSay: '💬 我有点紧张，但我会努力相信你。',
+          text: this.copy.raiseDog.growthRecords.day1.text,
+          dogSay: this.copy.raiseDog.growthRecords.day1.dogSay,
           highlight: this.isFirstTime(1)
         })
       }
@@ -314,8 +306,8 @@ export default {
       if (this.streakDays >= 7) {
         records.push({
           day: 7,
-          text: '🎉 连续 7 天，你已经建立起稳定的照顾习惯',
-          dogSay: '💬 我开始记住你的味道了。',
+          text: this.copy.raiseDog.growthRecords.day7.text,
+          dogSay: this.copy.raiseDog.growthRecords.day7.dogSay,
           highlight: this.isFirstTime(7)
         })
       }
@@ -323,8 +315,8 @@ export default {
       if (this.streakDays >= 30) {
         records.push({
           day: 30,
-          text: '🏆 连续 30 天，你和狗狗已经形成真正的陪伴关系',
-          dogSay: '💬 原来，这就是家。',
+          text: this.copy.raiseDog.growthRecords.day30.text,
+          dogSay: this.copy.raiseDog.growthRecords.day30.dogSay,
           highlight: this.isFirstTime(30)
         })
       }
@@ -332,9 +324,9 @@ export default {
       return records
     },
     dogImage() {
-      if (this.dogMood.includes('非常开心')) {
+      if (this.dogMood === 'happy') {
         return require('@/assets/raise/happy.png')
-      } else if (this.dogMood.includes('还不错')) {
+      } else if (this.dogMood === 'normal') {
         return require('@/assets/raise/normal.png')
       } else {
         return require('@/assets/raise/sad.png')
@@ -351,6 +343,7 @@ export default {
     }
 
     if (startDate) {
+      this.startDate = startDate
       const start = new Date(startDate)
       const now = new Date()
       const diffTime = now - start
@@ -358,6 +351,7 @@ export default {
     }
 
     this.loadCareStatus()
+    this.updateDogMood()
 
     this.streakDays = Number(localStorage.getItem('streakDays')) || 0
     this.lastDoneDate = localStorage.getItem('lastDoneDate') || ''
@@ -373,9 +367,9 @@ export default {
 
       if (!localStorage.getItem('return_seen')) {
         if (diffHours >= 6) {
-          this.returnTip = '🐶 你终于回来了，我等了你好久…'
+          this.returnTipKey = 'long'
         } else {
-          this.returnTip = '🐶 你回来啦，我刚刚还在想你'
+          this.returnTipKey = 'short'
         }
         localStorage.setItem('return_seen', 'true')
       }
@@ -392,19 +386,22 @@ export default {
   },
 
   methods: {
+    format(template, values) {
+      return formatMessage(template, values)
+    },
     updateDogMood() {
       const { feed, walk, play } = this.careStatus
 
       const count = [feed, walk, play].filter(v => v).length
 
       if (count === 3) {
-        this.dogMood = '😄 非常开心'
+        this.dogMood = 'happy'
       } else if (count === 2) {
-        this.dogMood = '🙂 还不错'
+        this.dogMood = 'normal'
       } else if (count === 1) {
-        this.dogMood = '😐 有点无聊'
+        this.dogMood = 'bored'
       } else {
-        this.dogMood = '😢 很难过'
+        this.dogMood = 'sad'
       }
     },
     toggleCare(type) {
@@ -507,7 +504,7 @@ export default {
 
 <style scoped>
 .raise-page {
-  padding: 16px;
+  padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
 }
 
 .dog-header {

@@ -2,45 +2,53 @@
   <div class="page" v-if="dog">
     <img :src="dog.img" class="dog-img" />
 
-    <h2>{{ dog.name }}</h2>
+    <h2>{{ dogName }}</h2>
 
     <p class="level">
-      推荐等级：
+      {{ copy.dogDetail.levelLabel }}
       <strong>
-        {{
-          dog.level === 'low'
-            ? '新手友好'
-            : dog.level === 'mid'
-            ? '需要一定经验'
-            : '高挑战'
-        }}
+        {{ copy.dogDetail.levels[dog.level] }}
       </strong>
     </p>
 
     <div class="reason-box">
       <h3>
-        {{
-          dog.level === recommendLevel
-            ? '为什么推荐你养它？'
-            : '为什么不太推荐你养它？'
-        }}
+        {{ dog.level === recommendLevel ? copy.dogDetail.whyRecommended : copy.dogDetail.whyNotRecommended }}
       </h3>
-      <p>{{ dog.reason }}</p>
+      <p>{{ reasonText }}</p>
     </div>
 
     <button class="confirm" @click="confirmDog">
-      选这只狗
+      {{ copy.dogDetail.confirm }}
     </button>
   </div>
 </template>
 
 <script>
+import { i18nState, langData } from '@/i18n'
+
 export default {
   name: 'DogDetail',
   data() {
     return {
       dog: null,
       recommendLevel: ''
+    }
+  },
+  computed: {
+    lang() {
+      return i18nState.lang
+    },
+    copy() {
+      return langData[this.lang]
+    },
+    dogName() {
+      return this.copy.chooseDog.dogs[this.dog.id]?.name || this.dog.name
+    },
+    reasonText() {
+      const reason = this.copy.chooseDog.dogs[this.dog.id]?.reason
+      if (!reason) return this.dog.reason
+      return this.dog.level === this.recommendLevel ? reason.good : reason.bad
     }
   },
   created() {
@@ -56,7 +64,11 @@ export default {
   },
   methods: {
     confirmDog() {
-      localStorage.setItem('myDog', JSON.stringify(this.dog))
+      localStorage.setItem('myDog', JSON.stringify({
+        ...this.dog,
+        name: this.dogName,
+        reason: this.reasonText
+      }))
       localStorage.setItem('startDate', new Date().toISOString())
       this.$router.push('/my-dog')
     }

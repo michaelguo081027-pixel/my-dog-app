@@ -11,7 +11,7 @@
         class="tab"
         :class="{ active: $route.path === '/raise-dog' }"
       >
-        🐶 养狗
+        {{ copy.app.raiseDog }}
       </div>
 
       <div
@@ -19,7 +19,7 @@
         class="tab"
         :class="{ active: $route.path === '/choose-dog' }"
       >
-        🐕 选狗
+        {{ copy.app.chooseDog }}
       </div>
 
       <div
@@ -27,29 +27,48 @@
         class="tab"
         :class="{ active: $route.path === '/rules' }"
       >
-        📖 规则
+        {{ copy.app.rules }}
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { i18nState, langData } from '@/i18n'
 import NavBar from "./components/NavBar.vue";
 
 export default {
   components: {
     NavBar
+  },
+
+  computed: {
+    lang() {
+      return i18nState.lang
+    },
+    copy() {
+      return langData[this.lang]
+    }
   }
 };
 </script>
 
 <style scoped>
+#app {
+  --tab-bar-height: 60px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: calc(var(--tab-bar-height) + 20px + env(safe-area-inset-bottom));
+}
+
 .tab-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  z-index: 800;
+  height: var(--tab-bar-height);
+  padding-bottom: env(safe-area-inset-bottom);
   background: #ffffff;
   display: flex;
   border-top: 1px solid #eee;
